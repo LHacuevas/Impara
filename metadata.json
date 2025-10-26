@@ -1,0 +1,7 @@
+{
+  "name": "Impara con Alex",
+  "description": "An application to practice Italian grammar (B1-B2) with quizzes and have real-time conversations with an AI tutor.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

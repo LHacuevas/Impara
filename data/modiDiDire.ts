@@ -1,0 +1,218 @@
+import type { Question } from '../types';
+
+export const modiDiDireQuestions: Question[] = [
+  {
+    question: "Cosa significa l'espressione 'In bocca al lupo!'?",
+    options: ["Stai attento al lupo", "Buona fortuna!", "Hai un cattivo odore", "Sei coraggioso come un lupo"],
+    correctAnswer: 'Buona fortuna!',
+    explanation: "'In bocca al lupo!' è un modo scaramantico per augurare buona fortuna. La risposta tradizionale è 'Crepi il lupo!'.",
+  },
+  {
+    question: "Se qualcuno 'cade a fagiolo', significa che...",
+    options: ['è molto goffo', 'ama i fagioli', 'arriva al momento giusto', 'ha fame'],
+    correctAnswer: 'arriva al momento giusto',
+    explanation: "'Cadere a fagiolo' significa che qualcosa accade o qualcuno arriva esattamente nel momento più opportuno.",
+  },
+  {
+    question: "Cosa vuol dire 'Non vedo l'ora'?",
+    options: ['Sono cieco', 'Aspetto con impazienza', 'Non ho tempo', 'È troppo tardi'],
+    correctAnswer: 'Aspetto con impazienza',
+    explanation: "L'espressione 'Non vedo l'ora' si usa per dire che si è molto eccitati per qualcosa e si desidera che accada presto. È simile a 'I can't wait'.",
+  },
+  {
+    question: "Cosa significa 'avere le mani bucate'?",
+    options: ['essere generosi', 'essere spendaccioni', 'essere maldestri', 'avere freddo alle mani'],
+    correctAnswer: 'essere spendaccioni',
+    explanation: "Avere le mani bucate' significa spendere soldi con troppa facilità, essere uno spendaccione (a spendthrift).",
+  },
+  {
+    question: "Se una persona 'è al verde', significa che...",
+    options: ['è ecologista', 'non ha soldi', 'è malata', 'è invidiosa'],
+    correctAnswer: 'non ha soldi',
+    explanation: "'Essere al verde' è un'espressione colloquiale che significa non avere più soldi.",
+  },
+  {
+    question: "Cosa significa 'avere la testa fra le nuvole'?",
+    options: ['essere molto alti', 'essere in aereo', 'essere distratto o sognatore', 'avere mal di testa'],
+    correctAnswer: 'essere distratto o sognatore',
+    explanation: "Si dice di una persona che è spesso distratta, con la mente altrove, che non presta attenzione alla realtà.",
+  },
+  {
+    question: "L'espressione 'Acqua in bocca!' è un invito a...",
+    options: ['bere un bicchiere d\'acqua', 'mantenere un segreto', 'parlare a voce bassa', 'lavarsi i denti'],
+    correctAnswer: 'mantenere un segreto',
+    explanation: "È un modo per dire a qualcuno di non rivelare un'informazione, di non dire nulla.",
+  },
+  {
+    question: "Se qualcosa 'costa un occhio della testa', significa che...",
+    options: ['è illegale', 'è un buon affare', 'è molto bello', 'è molto costoso'],
+    correctAnswer: 'è molto costoso',
+    explanation: "Questa espressione si usa per indicare che qualcosa ha un prezzo esorbitante.",
+  },
+  {
+    question: "Cosa significa 'prendere due piccioni con una fava'?",
+    options: ['essere un bravo cacciatore', 'ottenere due risultati con una sola azione', 'essere crudeli con gli animali', 'risparmiare denaro'],
+    correctAnswer: 'ottenere due risultati con una sola azione',
+    explanation: "Significa risolvere due problemi o raggiungere due obiettivi con un unico sforzo.",
+  },
+  {
+    question: "Se 'piove sul bagnato', significa che...",
+    options: ['la pioggia è molto forte', 'un evento positivo accade a chi è già fortunato', 'un evento negativo accade a chi è già sfortunato', 'sta per arrivare un temporale'],
+    correctAnswer: 'un evento positivo accade a chi è già fortunato',
+    explanation: "Generalmente si usa in senso ironico o critico, per indicare che la fortuna favorisce sempre le stesse persone.",
+  },
+  {
+    question: "Cosa significa 'rompere il ghiaccio'?",
+    options: ['fare molto freddo', 'superare la timidezza iniziale in una situazione sociale', 'fare un errore grave', 'bere qualcosa di freddo'],
+    correctAnswer: 'superare la timidezza iniziale in una situazione sociale',
+    explanation: "Significa avviare una conversazione o un'interazione per mettere le persone a proprio agio.",
+  },
+  {
+    question: "Cosa significa l'espressione 'Chi dorme non piglia pesci'?",
+    options: ['È importante dormire bene', 'I pescatori devono stare svegli', 'Chi è pigro non ottiene risultati', 'Non si deve pescare di notte'],
+    correctAnswer: 'Chi è pigro non ottiene risultati',
+    explanation: "È un proverbio che sottolinea l'importanza di essere attivi e diligenti per raggiungere i propri obiettivi.",
+  },
+  {
+    question: "Se una persona 'è in gamba', significa che...",
+    options: ['ha le gambe lunghe', 'è un bravo atleta', 'è molto capace e intelligente', 'è stanca'],
+    correctAnswer: 'è molto capace e intelligente',
+    explanation: "L'espressione 'essere in gamba' si usa per descrivere una persona competente, sveglia e abile.",
+  },
+  {
+    question: "Cosa vuol dire 'fare orecchie da mercante'?",
+    options: ['ascoltare attentamente', 'avere un buon udito', 'vendere qualcosa', 'fingere di non sentire'],
+    correctAnswer: 'fingere di non sentire',
+    explanation: "Significa ignorare deliberatamente ciò che qualcuno sta dicendo, spesso per non fare qualcosa che viene chiesto.",
+  },
+  {
+    question: "Se hai 'un chiodo fisso', hai...",
+    options: ['mal di testa', 'un pensiero ossessivo', 'un problema da risolvere', 'un chiodo in tasca'],
+    correctAnswer: 'un pensiero ossessivo',
+    explanation: "Avere un 'chiodo fisso' significa avere un'idea o una preoccupazione che occupa costantemente la mente.",
+  },
+  {
+    question: "Cosa significa 'essere con l'acqua alla gola'?",
+    options: ['stare nuotando', 'avere sete', 'essere in una situazione molto difficile o disperata', 'avere mal di gola'],
+    correctAnswer: 'essere in una situazione molto difficile o disperata',
+    explanation: "Si usa per descrivere una condizione di grande difficoltà, specialmente economica, da cui è difficile uscire.",
+  },
+  {
+    question: "Cosa vuol dire 'non avere peli sulla lingua'?",
+    options: ['parlare in modo schietto e diretto', 'avere una buona dizione', 'essere una persona silenziosa', 'avere problemi a parlare'],
+    correctAnswer: 'parlare in modo schietto e diretto',
+    explanation: "Si dice di una persona che esprime le proprie opinioni apertamente, senza paura di offendere o di dire cose scomode.",
+  },
+  {
+    question: "L'espressione 'Tanto fumo e niente arrosto' descrive una situazione che è...",
+    options: ['un buon barbecue', 'un incendio senza danni', 'tutta apparenza ma poca sostanza', 'molto confusa'],
+    correctAnswer: 'tutta apparenza ma poca sostanza',
+    explanation: "Si usa per criticare qualcosa o qualcuno che sembra molto promettente o importante, ma che alla fine si rivela deludente e privo di valore reale.",
+  },
+    {
+    question: "Se una cosa 'calza a pennello', significa che...",
+    options: ['è dipinta bene', 'è perfetta per la situazione', 'è troppo stretta', 'è stata appena comprata'],
+    correctAnswer: 'è perfetta per la situazione',
+    explanation: "L'espressione si usa, letteralmente per un vestito, o in senso figurato per una situazione, per dire che è perfetta, che sta benissimo.",
+  },
+  {
+    question: "Cosa significa 'arrampicarsi sugli specchi'?",
+    options: ['fare un\'azione impossibile', 'cercare di giustificarsi in modo poco credibile', 'essere un bravo alpinista', 'pulire gli specchi'],
+    correctAnswer: 'cercare di giustificarsi in modo poco credibile',
+    explanation: "Si dice quando qualcuno cerca di difendere una posizione indifendibile con argomenti deboli e contorti.",
+  },
+  {
+    question: "Se una persona 'ha il braccino corto', è...",
+    options: ['un bambino piccolo', 'una persona avara', 'un atleta poco allenato', 'una persona con le braccia corte'],
+    correctAnswer: 'una persona avara',
+    explanation: "Avere 'il braccino corto' è un modo colloquiale per dire che una persona è tirchia, non generosa con il denaro.",
+  },
+  {
+    question: "Cosa significa 'essere un pesce fuor d'acqua'?",
+    options: ['amare il mare', 'trovarsi a disagio in una situazione', 'avere sete', 'saper nuotare bene'],
+    correctAnswer: 'trovarsi a disagio in una situazione',
+    explanation: "Significa sentirsi fuori posto, non a proprio agio in un determinato ambiente o contesto sociale.",
+  },
+  {
+    question: "L'espressione 'dare i numeri' significa...",
+    options: ['essere un bravo matematico', 'vincere alla lotteria', 'dire cose senza senso, vaneggiare', 'fare un elenco'],
+    correctAnswer: 'dire cose senza senso, vaneggiare',
+    explanation: "Si usa per descrivere qualcuno che parla o si comporta in modo strano, irrazionale, come se fosse impazzito.",
+  },
+  {
+    question: "Cosa vuol dire 'vuotare il sacco'?",
+    options: ['fare la spesa', 'confessare tutto', 'fare pulizia', 'essere stanchi'],
+    correctAnswer: 'confessare tutto',
+    explanation: "Significa rivelare un segreto o dire tutta la verità su qualcosa che si teneva nascosto.",
+  },
+  {
+    question: "Se 'tagli la corda', cosa fai?",
+    options: ['prepari una barca', 'scappi via di nascosto', 'fai un nodo', 'inizi un nuovo lavoro'],
+    correctAnswer: 'scappi via di nascosto',
+    explanation: "'Tagliare la corda' è un'espressione informale che significa andarsene, scappare, specialmente per evitare una situazione sgradevole.",
+  },
+  {
+    question: "Cosa significa 'avere un diavolo per capello'?",
+    options: ['essere molto arrabbiati', 'avere i capelli in disordine', 'essere tentati dal male', 'avere una pettinatura strana'],
+    correctAnswer: 'essere molto arrabbiati',
+    explanation: "È un modo di dire che descrive una persona estremamente irritata, furiosa.",
+  },
+  {
+    question: "Cosa significa 'essere in alto mare'?",
+    options: ['essere in crociera', 'essere lontani dalla conclusione di un lavoro', 'avere le idee confuse', 'sentirsi soli'],
+    correctAnswer: 'essere lontani dalla conclusione di un lavoro',
+    explanation: "Si usa per dire che un progetto o un'attività è ancora ben lontana dall'essere completata.",
+  },
+  {
+    question: "Se 'getti la spugna', stai...",
+    options: ['facendo la doccia', 'pulendo il pavimento', 'arrendendoti', 'iniziando una discussione'],
+    correctAnswer: 'arrendendoti',
+    explanation: "'Gettare la spugna' (dalla boxe) significa arrendersi, rinunciare a continuare un'impresa difficile.",
+  },
+  {
+    question: "Cosa vuol dire 'avere la luna storta'?",
+    options: ['essere un astronomo', 'essere di cattivo umore', 'lavorare di notte', 'essere un sognatore'],
+    correctAnswer: 'essere di cattivo umore',
+    explanation: "Si dice di una persona che è irritabile, nervosa e intrattabile senza un motivo apparente.",
+  },
+  {
+    question: "Cosa significa il proverbio 'Non tutte le ciambelle riescono col buco'?",
+    options: ['È difficile fare i dolci', 'Le cose non sempre vanno come si vorrebbe', 'Bisogna essere precisi', 'Le ciambelle sono buone anche senza buco'],
+    correctAnswer: 'Le cose non sempre vanno come si vorrebbe',
+    explanation: "È un modo per dire che è normale che a volte le cose non vadano alla perfezione; bisogna accettare i piccoli fallimenti.",
+  },
+  {
+    question: "Se una persona 'pianta in asso' qualcuno, cosa fa?",
+    options: ['gli regala una pianta', 'lo aiuta in giardino', 'lo abbandona all\'improvviso', 'lo invita a giocare a carte'],
+    correctAnswer: 'lo abbandona all\'improvviso',
+    explanation: "Significa abbandonare una persona bruscamente, specialmente in un momento di bisogno.",
+  },
+  {
+    question: "Cosa significa 'nascere con la camicia'?",
+    options: ['essere molto fortunati', 'essere ben vestiti', 'essere di famiglia ricca', 'avere freddo'],
+    correctAnswer: 'essere molto fortunati',
+    explanation: "È un'espressione che si riferisce a una persona particolarmente fortunata nella vita.",
+  },
+  {
+    question: "Cosa significa 'salvare capra e cavoli'?",
+    options: ['essere un bravo contadino', 'risolvere una situazione accontentando due parti opposte', 'fare una scelta difficile', 'evitare un pericolo'],
+    correctAnswer: 'risolvere una situazione accontentando due parti opposte',
+    explanation: "Significa riuscire a trovare una soluzione che soddisfi esigenze contrastanti, senza dover sacrificare nulla.",
+  },
+  {
+    question: "Se 'parli del diavolo e spuntano le corna', significa che...",
+    options: ['hai paura del diavolo', 'stai dicendo una bugia', 'arriva la persona di cui stavi parlando', 'succede qualcosa di brutto'],
+    correctAnswer: 'arriva la persona di cui stavi parlando',
+    explanation: "È l'equivalente italiano di 'Speak of the devil and he doth appear'.",
+  },
+  {
+    question: "Cosa significa 'cercare un ago in un pagliaio'?",
+    options: ['fare un lavoro di sartoria', 'cercare qualcosa di molto piccolo', 'fare un\'impresa quasi impossibile', 'lavorare in campagna'],
+    correctAnswer: 'fare un\'impresa quasi impossibile',
+    explanation: "Descrive il tentativo di trovare qualcosa di quasi introvabile, un compito estremamente difficile.",
+  },
+];
+
+export const modiDiDireGroup = {
+    'Modi di Dire': modiDiDireQuestions,
+};
