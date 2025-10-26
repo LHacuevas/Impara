@@ -5,8 +5,11 @@ import type { TranscriptionEntry, ConversationMode } from '../types';
 import { MicrophoneIcon, StopCircleIcon, AcademicCapIcon, ChatBubbleLeftRightIcon, SparklesIcon } from './Icons';
 import { analyzeConversation } from '../services/geminiService';
 
+interface ConversationProps {
+    apiKey: string;
+}
 
-const Conversation: React.FC = () => {
+const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
     const [conversationMode, setConversationMode] = useState<ConversationMode | null>(null);
     const [isSessionActive, setIsSessionActive] = useState(false);
     const [statusMessage, setStatusMessage] = useState('');
@@ -53,8 +56,7 @@ const Conversation: React.FC = () => {
         setStatusMessage('Inizializzazione...');
         
         try {
-            if (!process.env.API_KEY) throw new Error("API_KEY environment variable is not set");
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
             
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             streamRef.current = stream;
@@ -92,7 +94,6 @@ const Conversation: React.FC = () => {
 
                         scriptProcessor.onaudioprocess = (audioProcessingEvent) => {
                             const inputData = audioProcessingEvent.inputBuffer.getChannelData(0);
-                            // FIX: Optimize audio data conversion from Float32Array to Int16Array using a for loop instead of map for better performance.
                             const l = inputData.length;
                             const int16 = new Int16Array(l);
                             for (let i = 0; i < l; i++) {
@@ -110,7 +111,7 @@ const Conversation: React.FC = () => {
                     onmessage: (msg: LiveServerMessage) => handleServerMessage(msg),
                     onerror: (e: ErrorEvent) => {
                         console.error('Session error:', e);
-                        setStatusMessage('Errore di connessione. Riprova.');
+                        setStatusMessage('Errore di connessione. Controlla la API Key e riprova.');
                         cleanup();
                     },
                     onclose: () => cleanup(),
@@ -119,7 +120,7 @@ const Conversation: React.FC = () => {
 
         } catch (error) {
             console.error('Failed to start conversation:', error);
-            setStatusMessage('Accesso al microfono negato. Controlla le autorizzazioni.');
+            setStatusMessage('Accesso al microfono negato o API key non valida. Controlla le autorizzazioni e la chiave API.');
             cleanup();
         }
     };
@@ -161,7 +162,7 @@ const Conversation: React.FC = () => {
     const handleAnalyze = async () => {
         setIsAnalyzing(true);
         setAnalysis(null);
-        const result = await analyzeConversation(transcriptionHistory);
+        const result = await analyzeConversation(transcriptionHistory, apiKey);
         setAnalysis(result);
         setIsAnalyzing(false);
     };

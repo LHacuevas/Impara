@@ -9,7 +9,11 @@ type QuizHistory = {
   [key: string]: { score: number; total: number };
 };
 
-const Quiz: React.FC = () => {
+interface QuizProps {
+  apiKey: string;
+}
+
+const Quiz: React.FC<QuizProps> = ({ apiKey }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -36,10 +40,7 @@ const Quiz: React.FC = () => {
   }, []);
 
   const generateAIQuestions = async (puntiDeboli?: string): Promise<Question[]> => {
-    if (!process.env.API_KEY) {
-      throw new Error("API_KEY environment variable is not set");
-    }
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     
     let prompt = `Sei una professoressa di italiano esperta per studenti di livello B1-B2. Il tuo compito è creare un quiz. Per ogni domanda, fornisci:
 1.  "question": Il testo della domanda.
@@ -137,7 +138,7 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
       }
     } catch (error) {
        console.error("Errore durante la generazione delle domande:", error);
-       alert("Oops! Qualcosa è andato storto nella creazione del quiz. Riprova più tardi.");
+       alert("Oops! Qualcosa è andato storto nella creazione del quiz. Controlla che la tua API Key sia corretta e riprova.");
        setIsGenerating(false);
        return;
     } finally {

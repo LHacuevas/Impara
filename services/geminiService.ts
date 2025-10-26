@@ -1,12 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import type { TranscriptionEntry } from "../types";
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable is not set");
-}
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+export async function analyzeConversation(transcript: TranscriptionEntry[], apiKey: string): Promise<string> {
+    if (!apiKey) {
+        return "Errore: Chiave API non fornita.";
+    }
+    const ai = new GoogleGenAI({ apiKey });
 
-export async function analyzeConversation(transcript: TranscriptionEntry[]): Promise<string> {
     const model = 'gemini-2.5-flash';
     const formattedTranscript = transcript.map(entry => `${entry.speaker === 'user' ? 'Studente' : 'AI'}: ${entry.text}`).join('\n');
 
@@ -30,6 +30,6 @@ export async function analyzeConversation(transcript: TranscriptionEntry[]): Pro
         return response.text;
     } catch (error) {
         console.error("Error analyzing conversation:", error);
-        return "Si è verificato un errore durante l'analisi della conversazione. Riprova più tardi.";
+        return "Si è verificato un errore durante l'analisi della conversazione. Controlla che la tua API Key sia corretta e riprova più tardi.";
     }
 }

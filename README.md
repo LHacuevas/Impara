@@ -1,4 +1,4 @@
-# Impara con Alex
+# AlexIA
 
 Un'applicazione innovativa per esercitarsi con la lingua italiana (livello B1-C1) attraverso quiz intelligenti e conversazioni in tempo reale con un tutor AI.
 
