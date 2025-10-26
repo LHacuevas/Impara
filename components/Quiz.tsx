@@ -6,14 +6,20 @@ import { CheckCircleIcon, XCircleIcon, SparklesIcon } from './Icons';
 import { get, shuffle } from 'lodash-es';
 
 type QuizHistory = {
-  [key: string]: { score: number; total: number };
+  [key: string]: { 
+    score: number; 
+    total: number;
+    percentage: number;
+    date: string; // ISO string
+  };
 };
 
 interface QuizProps {
   apiKey: string;
+  isOnline: boolean;
 }
 
-const Quiz: React.FC<QuizProps> = ({ apiKey }) => {
+const Quiz: React.FC<QuizProps> = ({ apiKey, isOnline }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -95,9 +101,10 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
   };
 
   const analizzaPuntiDeboli = (history: QuizHistory): string => {
-    const performance = Object.entries(history).map(([path, { score, total }]) => ({
+    const performance = Object.entries(history).map(([path, data]) => ({
       path,
-      percentage: (score / total) * 100,
+      // Handle old data format by calculating percentage if it's missing
+      percentage: data.percentage ?? (data.score / data.total) * 100,
     }));
 
     const weakTopics = performance
@@ -176,9 +183,15 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
     } else {
       const topicPath = selectedPrimaryTopic === 'Misto' || selectedPrimaryTopic.startsWith('IA') ? null : selectedQuizPath;
       if (topicPath) {
+        const percentage = Math.round((score / questions.length) * 100);
         const newHistory = {
           ...quizHistory,
-          [topicPath]: { score, total: questions.length },
+          [topicPath]: { 
+            score, 
+            total: questions.length,
+            percentage,
+            date: new Date().toISOString()
+          },
         };
         setQuizHistory(newHistory);
         localStorage.setItem('quizResults', JSON.stringify(newHistory));
@@ -194,6 +207,21 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
     setSelectedQuizPath('');
   };
 
+  const formatDate = (isoString: string) => {
+    if (!isoString) return '';
+    try {
+        const date = new Date(isoString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch (e) {
+        return '';
+    }
+  };
+
   const renderSubTopicOptions = (obj: any, parentKey = '', level = 0, pathPrefix = ''): React.ReactElement[] => {
     return Object.entries(obj).flatMap(([key, value]) => {
       const currentPath = pathPrefix ? `${pathPrefix}.${key}` : key;
@@ -201,7 +229,9 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
       
       if (Array.isArray(value)) {
         const history = quizHistory[currentPath];
-        const historyString = history ? ` - Ultimo: ${history.score}/${history.total}` : '';
+        const historyString = history 
+          ? ` - Ultimo: ${history.score}/${history.total} (${history.percentage}%) il ${formatDate(history.date)}` 
+          : '';
         return (
           <option key={currentPath} value={currentPath}>
             {labelPrefix}{parentKey} {'>'} {key} ({value.length} domande){historyString}
@@ -233,6 +263,10 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
   if (!quizStarted) {
     const subTopics = !['Misto', 'AI', 'IA_Mirato'].includes(selectedPrimaryTopic) ? get(groupedQuestions, selectedPrimaryTopic) : null;
     const isMiratoDisabled = Object.keys(quizHistory).length < 2;
+    const aiTitle = !isOnline ? "Funzionalità non disponibile offline" : "L'IA genera 15 domande nuove ogni volta";
+    const miratoTitle = !isOnline 
+      ? "Funzionalità non disponibile offline" 
+      : (isMiratoDisabled ? "Completa almeno due quiz diversi per sbloccare questa modalità" : "L'IA crea un quiz basato sui tuoi errori passati");
 
     return (
       <div className="max-w-2xl mx-auto py-8 text-center">
@@ -250,8 +284,8 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
               aria-label="Scegli un tema principale"
             >
               <option value="Misto">Misto (15 domande casuali)</option>
-              <option value="AI">✨ Quiz Infinito (Generato da IA)</option>
-              <option value="IA_Mirato" disabled={isMiratoDisabled} title={isMiratoDisabled ? "Completa almeno due quiz diversi per sbloccare questa modalità" : "L'IA crea un quiz basato sui tuoi errori passati"}>
+              <option value="AI" disabled={!isOnline} title={aiTitle}>✨ Quiz Infinito (Generato da IA)</option>
+              <option value="IA_Mirato" disabled={!isOnline || isMiratoDisabled} title={miratoTitle}>
                 🧠 Esercizi Mirati (IA)
               </option>
               {Object.keys(groupedQuestions).map(key => (

@@ -15,9 +15,9 @@ const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onApiKeySave }) => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-slate-100">
+    <div className="flex items-center justify-center h-screen bg-slate-100 p-4">
       <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
-        <h1 className="text-2xl font-bold text-slate-800 mb-2">AlexIA</h1>
+        <h1 className="text-2xl font-bold text-slate-800 mb-2">Benvenuto in AlexIA</h1>
         <p className="text-slate-600 mb-6">Per iniziare, inserisci la tua API Key di Google Gemini.</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -38,19 +38,30 @@ const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onApiKeySave }) => {
           </button>
         </form>
         
-        <p className="text-xs text-slate-500 mt-6">
-          Puoi ottenere la tua API Key gratuita da{' '}
-          <a
-            href="https://aistudio.google.com/app/apikey"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-emerald-600 hover:underline"
-          >
-            Google AI Studio
-          </a>.
-          <br/>
-          La tua chiave verrà salvata solo nel tuo browser.
-        </p>
+        <div className="mt-6 pt-4 border-t border-slate-200">
+           <p className="text-sm text-slate-700 font-medium mb-3">
+             Come ottenere la tua API Key gratuita:
+           </p>
+           <ol className="text-sm text-left list-decimal list-inside text-slate-600 space-y-2 mb-4">
+             <li>
+               Vai su{' '}
+               <a
+                 href="https://aistudio.google.com/app/apikey"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 className="text-emerald-600 hover:underline font-semibold"
+               >
+                 Google AI Studio
+               </a>.
+             </li>
+             <li>Clicca sul pulsante "Create API key in new project".</li>
+             <li>Copia la chiave generata e incollala nel campo qui sopra.</li>
+           </ol>
+
+           <p className="text-xs text-slate-500 mt-4">
+             La tua chiave verrà salvata solo nel tuo browser e non sarà condivisa con nessuno.
+           </p>
+        </div>
       </div>
     </div>
   );
