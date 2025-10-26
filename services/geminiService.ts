@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import type { TranscriptionEntry } from "../types";
 
 export async function analyzeConversation(transcript: TranscriptionEntry[], apiKey: string): Promise<string> {
@@ -31,5 +31,44 @@ export async function analyzeConversation(transcript: TranscriptionEntry[], apiK
     } catch (error) {
         console.error("Error analyzing conversation:", error);
         return "Si è verificato un errore durante l'analisi della conversazione. Controlla che la tua API Key sia corretta e riprova più tardi.";
+    }
+}
+
+export async function getReplySuggestions(transcript: TranscriptionEntry[], apiKey: string): Promise<string[]> {
+    if (!apiKey) {
+        throw new Error("API Key not provided.");
+    }
+    const ai = new GoogleGenAI({ apiKey });
+    const model = 'gemini-2.5-flash';
+    const formattedTranscript = transcript.map(entry => `${entry.speaker === 'user' ? 'Studente' : 'AI'}: ${entry.text}`).join('\n');
+
+    const prompt = `Basandoti sulla seguente conversazione in italiano tra uno studente e un'AI, genera 2 o 3 brevi risposte o domande in italiano (massimo 10 parole ciascuna) che lo studente potrebbe dire per continuare la conversazione in modo naturale.
+    Le risposte devono essere pertinenti all'ultimo intervento dell'AI.
+    
+    Conversazione:
+    ---
+    ${formattedTranscript}
+    ---
+    
+    Fornisci la risposta esclusivamente come un array JSON di stringhe.`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: model,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.ARRAY,
+                    items: { type: Type.STRING }
+                }
+            }
+        });
+        const jsonStr = response.text.trim();
+        const result = JSON.parse(jsonStr);
+        return Array.isArray(result) ? result : [];
+    } catch (error) {
+        console.error("Error getting reply suggestions:", error);
+        return [];
     }
 }

@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { encode, decode, decodeAudioData } from '../utils/audioUtils';
 import type { TranscriptionEntry, ConversationMode } from '../types';
 import { MicrophoneIcon, StopCircleIcon, AcademicCapIcon, ChatBubbleLeftRightIcon, SparklesIcon } from './Icons';
-import { analyzeConversation } from '../services/geminiService';
+import { analyzeConversation, getReplySuggestions } from '../services/geminiService';
 
 interface ConversationProps {
     apiKey: string;
@@ -16,6 +16,8 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
     const [transcriptionHistory, setTranscriptionHistory] = useState<TranscriptionEntry[]>([]);
     const [analysis, setAnalysis] = useState<string | null>(null);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
+    const [isSuggesting, setIsSuggesting] = useState(false);
 
 
     const sessionPromiseRef = useRef<Promise<Session> | null>(null);
@@ -69,7 +71,7 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
 
             const isTeacherMode = mode === 'teacher';
             const systemInstruction = isTeacherMode 
-                ? 'Sei una professoressa di italiano esperta e paziente. Il tuo studente ha un livello B1-B2. Parla in italiano chiaro e corretto. Il tuo obiettivo è aiutare lo studente a migliorare la sua conversazione. Se lo studente fa un errore grammaticale, di pronuncia o di lessico, correggilo gentilmente, spiega brevemente perché è un errore e fornisci la forma corretta. Incoraggia lo studente a continuare la conversazione.'
+                ? 'Sei una professoressa di italiano esperta, severa ma giusta. Il tuo studente ha un livello B1-B2. Parla in italiano chiaro e corretto. Il tuo compito PRINCIPALE è correggere TUTTI gli errori significativi di grammatica, lessico o pronuncia. Non esitare a interrompere gentilmente la sua frase per correggerlo, spiegando brevemente (in 10-15 parole) l\'errore e fornendo la forma corretta. Poi, incoraggialo a continuare. Lo studente parlerà in italiano, interpreta il suo audio come lingua italiana.'
                 : 'Sei un amico italiano che sta facendo una conversazione informale e amichevole. Parla in modo naturale di argomenti di tutti i giorni. Il tuo interlocutore sta imparando l\'italiano, quindi parla chiaramente ma non in modo innaturale. Sii curioso e fai domande.';
             const voiceName = isTeacherMode ? 'Kore' : 'Puck';
 
@@ -162,16 +164,28 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
     const handleAnalyze = async () => {
         setIsAnalyzing(true);
         setAnalysis(null);
+        setSuggestedReplies([]);
         const result = await analyzeConversation(transcriptionHistory, apiKey);
         setAnalysis(result);
         setIsAnalyzing(false);
     };
+    
+    const handleSuggest = async () => {
+        setIsSuggesting(true);
+        setAnalysis(null);
+        setSuggestedReplies([]);
+        const result = await getReplySuggestions(transcriptionHistory, apiKey);
+        setSuggestedReplies(result);
+        setIsSuggesting(false);
+    }
 
     const resetConversation = () => {
         setConversationMode(null);
         setTranscriptionHistory([]);
         setAnalysis(null);
         setIsAnalyzing(false);
+        setSuggestedReplies([]);
+        setIsSuggesting(false);
         setStatusMessage('Scegli una modalità per iniziare.');
     };
     
@@ -209,11 +223,14 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
                 )}
                 {transcriptionHistory.map((entry, index) => (
                     <div key={index} className={`flex ${entry.speaker === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-xs md:max-w-md p-3 rounded-2xl ${
+                        <div className={`max-w-xs md:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
                             entry.speaker === 'user' 
                             ? 'bg-emerald-600 text-white rounded-br-lg' 
                             : 'bg-slate-200 text-slate-800 rounded-bl-lg'
                         }`}>
+                             <p className={`text-xs font-bold mb-1 ${entry.speaker === 'user' ? 'text-emerald-200' : 'text-emerald-800'}`}>
+                                {entry.speaker === 'user' ? 'Tu' : 'AlexIA'}
+                            </p>
                             <p>{entry.text}</p>
                         </div>
                     </div>
@@ -225,6 +242,18 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
                         <div className="p-4 bg-slate-50 rounded-lg text-slate-700 whitespace-pre-wrap text-sm">{analysis}</div>
                     </div>
                 )}
+                 {suggestedReplies.length > 0 && (
+                    <div className="mt-6 pt-4 border-t border-slate-200">
+                        <h3 className="text-lg font-bold text-slate-800 mb-2">Suggerimenti:</h3>
+                        <div className="flex flex-wrap gap-2">
+                            {suggestedReplies.map((reply, index) => (
+                                <button key={index} className="px-3 py-1 bg-sky-100 text-sky-800 rounded-full text-sm">
+                                    {reply}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 {isAnalyzing && (
                     <div className="mt-6 text-center text-slate-600">
                         <p>Analisi in corso... attendi un momento.</p>
@@ -234,11 +263,16 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
             <div className="text-center">
                 <p className="text-slate-600 mb-4 h-6">{statusMessage}</p>
                  {!isSessionActive && transcriptionHistory.length > 0 && (
-                    <div className="flex justify-center gap-4 mb-4">
-                        <button onClick={resetConversation} className="px-6 py-2 bg-slate-500 text-white font-semibold rounded-lg shadow-md hover:bg-slate-600 transition-colors">Nuova Conversazione</button>
-                        <button onClick={handleAnalyze} disabled={isAnalyzing || !!analysis} className="px-6 py-2 bg-sky-600 text-white font-semibold rounded-lg shadow-md hover:bg-sky-700 transition-colors disabled:bg-sky-300 disabled:cursor-not-allowed">
-                            {isAnalyzing ? 'Analizzando...' : 'Analizza Conversazione'}
-                        </button>
+                    <div className="flex flex-col items-center gap-4 mb-4">
+                        <div className="flex justify-center gap-4">
+                            <button onClick={resetConversation} className="px-6 py-2 bg-slate-500 text-white font-semibold rounded-lg shadow-md hover:bg-slate-600 transition-colors">Nuova Conversazione</button>
+                            <button onClick={handleAnalyze} disabled={isAnalyzing || !!analysis || isSuggesting} className="px-6 py-2 bg-sky-600 text-white font-semibold rounded-lg shadow-md hover:bg-sky-700 transition-colors disabled:bg-sky-300 disabled:cursor-not-allowed">
+                                {isAnalyzing ? 'Analizzando...' : 'Analizza'}
+                            </button>
+                             <button onClick={handleSuggest} disabled={isSuggesting || isAnalyzing} className="px-6 py-2 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-colors disabled:bg-purple-300 disabled:cursor-not-allowed">
+                                {isSuggesting ? '...' : 'Suggerisci Risposte'}
+                            </button>
+                        </div>
                     </div>
                 )}
                 

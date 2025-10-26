@@ -103,7 +103,6 @@ const App: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3 sm:gap-6">
               <div className="flex items-center gap-2">
-                <img src="/logo.png" alt="AlexIA Logo" className="h-8 w-8 rounded-lg" />
                 <span className="text-xl font-bold text-slate-800">AlexIA</span>
               </div>
               <nav className="flex items-center gap-2">

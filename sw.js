@@ -16,7 +16,7 @@ const URLS_TO_CACHE = [
   '/types.ts',
   '/utils/audioUtils.ts',
   '/manifest.webmanifest',
-  '/logo.png',
+  '/icon.svg',
   'https://cdn.tailwindcss.com'
 ];
 
