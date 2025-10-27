@@ -1,7 +1,11 @@
 const CACHE_NAME = 'alexia-cache-v1';
 const URLS_TO_CACHE = [
+  // App Shell
   '/',
   '/index.html',
+  '/manifest.json',
+
+  // App Source Code
   '/index.tsx',
   '/App.tsx',
   '/components/Quiz.tsx',
@@ -17,11 +21,20 @@ const URLS_TO_CACHE = [
   '/services/geminiService.ts',
   '/types.ts',
   '/utils/audioUtils.ts',
-  '/manifest.webmanifest',
+  '/utils/serviceWorkerRegistration.ts',
+
+  // Assets
   '/icon.svg',
   '/icon-192.png',
   '/icon-512.png',
-  'https://cdn.tailwindcss.com'
+
+  // External Dependencies (CDN via Import Map)
+  'https://cdn.tailwindcss.com',
+  'https://aistudiocdn.com/react@^19.2.0',
+  'https://aistudiocdn.com/react-dom@^19.2.0/client',
+  'https://aistudiocdn.com/react@^19.2.0/jsx-runtime',
+  'https://aistudiocdn.com/@google/genai@^1.27.0',
+  'https://aistudiocdn.com/lodash-es@^4.17.21'
 ];
 
 self.addEventListener('install', event => {
@@ -29,7 +42,9 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
-        return cache.addAll(URLS_TO_CACHE);
+        // Usiamo { cache: "reload" } per assicurarci di ottenere le versioni più recenti dalle CDN durante l'installazione
+        const requests = URLS_TO_CACHE.map(url => new Request(url, { cache: 'reload' }));
+        return cache.addAll(requests);
       })
   );
 });
@@ -46,7 +61,7 @@ self.addEventListener('fetch', event => {
         return fetch(event.request).then(
           response => {
             // Check if we received a valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
+            if (!response || response.status !== 200 || (response.type !== 'basic' && response.type !== 'cors')) {
               return response;
             }
 
