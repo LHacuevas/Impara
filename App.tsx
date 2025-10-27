@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Quiz from './components/Quiz';
 import Conversation from './components/Conversation';
 import ApiKeyPrompt from './components/ApiKeyPrompt';
+import Campionato from './components/Campionato';
 import type { AppMode } from './types';
-import { BookOpenIcon, MicrophoneIcon } from './components/Icons';
+import { BookOpenIcon, MicrophoneIcon, TrophyIcon } from './components/Icons';
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('quiz');
@@ -51,6 +52,8 @@ const App: React.FC = () => {
         return <Quiz apiKey={apiKey} isOnline={isOnline} />;
       case 'conversation':
         return isOnline ? <Conversation apiKey={apiKey} /> : <OfflineContent />;
+      case 'campionato':
+        return <Campionato apiKey={apiKey} isOnline={isOnline} />;
       default:
         return <Quiz apiKey={apiKey} isOnline={isOnline} />;
     }
@@ -61,7 +64,7 @@ const App: React.FC = () => {
       <div className="bg-white p-8 rounded-xl shadow-lg">
         <h2 className="text-2xl font-bold text-slate-800 mb-4">Modalità Offline</h2>
         <p className="text-slate-600">
-          La modalità conversazione richiede una connessione a Internet attiva.
+          Questa modalità richiede una connessione a Internet attiva.
           <br/>
           Puoi comunque continuare a fare gli esercizi predefiniti!
         </p>
@@ -107,6 +110,7 @@ const App: React.FC = () => {
               </div>
               <nav className="flex items-center gap-2">
                  <NavButton label="Esercizi" targetMode="quiz" icon={<BookOpenIcon className="h-5 w-5" />} />
+                 <NavButton label="Campionato" targetMode="campionato" icon={<TrophyIcon className="h-5 w-5" />} />
                  <NavButton 
                     label="Conversazione" 
                     targetMode="conversation" 

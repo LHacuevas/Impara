@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { TranscriptionEntry } from "../types";
+import type { TranscriptionEntry, QuizHistory } from "../types";
 
 export async function analyzeConversation(transcript: TranscriptionEntry[], apiKey: string): Promise<string> {
     if (!apiKey) {
@@ -70,5 +70,47 @@ export async function getReplySuggestions(transcript: TranscriptionEntry[], apiK
     } catch (error) {
         console.error("Error getting reply suggestions:", error);
         return [];
+    }
+}
+
+export async function analyzeQuizHistory(history: QuizHistory, apiKey: string): Promise<string> {
+    if (!apiKey) {
+        return "Errore: Chiave API non fornita.";
+    }
+    const ai = new GoogleGenAI({ apiKey });
+    const model = 'gemini-2.5-flash';
+    
+    const historyData = Object.entries(history)
+        .map(([topic, data]) => `- Argomento: ${topic.replace(/\./g, ' > ')}\n  Punteggio: ${data.score}/${data.total} (${data.percentage}%)`)
+        .join('\n');
+
+    if (!historyData) {
+        return "Non ci sono ancora abbastanza dati per un'analisi. Completa qualche quiz!";
+    }
+
+    const prompt = `Sei un'insegnante di italiano esperta e incoraggiante. Analizza i seguenti risultati dei quiz di uno studente (livello B1-B2).
+Basandoti su questi dati, prepara un'analisi chiara e utile. La tua analisi deve includere:
+1.  **Panoramica Generale**: Un breve commento sulla performance complessiva dello studente.
+2.  **Punti di Forza**: Elenca 2-3 argomenti in cui lo studente ha ottenuto i punteggi più alti (sopra l'85%), complimentandoti per i buoni risultati.
+3.  **Aree di Miglioramento**: Elenca 2-3 argomenti in cui lo studente ha mostrato maggiori difficoltà (sotto il 70%). Sii gentile e costruttivo.
+4.  **Consigli Pratici**: Fornisci un consiglio specifico e attuabile per ogni area di miglioramento. Ad esempio, "Per le preposizioni, prova a creare delle frasi di esempio ogni giorno".
+
+Formatta la risposta in modo chiaro usando markdown (es. grassetto per i titoli). Non essere troppo lunga, l'analisi deve essere concisa e facile da leggere.
+
+Ecco i dati dei quiz:
+---
+${historyData}
+---
+`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: model,
+            contents: prompt,
+        });
+        return response.text;
+    } catch (error) {
+        console.error("Error analyzing quiz history:", error);
+        return "Si è verificato un errore durante l'analisi dei tuoi risultati. Controlla che la tua API Key sia corretta e riprova più tardi.";
     }
 }

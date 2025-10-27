@@ -1,18 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { groupedQuestions, allQuestions } from '../data/allQuestions';
-import type { Question } from '../types';
+import type { Question, QuizHistory, AIQuizSession } from '../types';
 import { CheckCircleIcon, XCircleIcon, SparklesIcon } from './Icons';
 import { get, shuffle } from 'lodash-es';
-
-type QuizHistory = {
-  [key: string]: { 
-    score: number; 
-    total: number;
-    percentage: number;
-    date: string; // ISO string
-  };
-};
 
 interface QuizProps {
   apiKey: string;
@@ -181,20 +172,43 @@ Assicurati che "correctAnswer" sia sempre una delle stringhe presenti in "option
       setSelectedAnswer(null);
       setIsAnswered(false);
     } else {
-      const topicPath = selectedPrimaryTopic === 'Misto' || selectedPrimaryTopic.startsWith('IA') ? null : selectedQuizPath;
-      if (topicPath) {
-        const percentage = Math.round((score / questions.length) * 100);
-        const newHistory = {
-          ...quizHistory,
-          [topicPath]: { 
-            score, 
-            total: questions.length,
-            percentage,
-            date: new Date().toISOString()
-          },
+      // Fine del quiz
+      const isAiQuiz = selectedPrimaryTopic.startsWith('AI') || selectedPrimaryTopic.startsWith('IA');
+      
+      if (isAiQuiz) {
+        const newSession: AIQuizSession = {
+          id: Date.now(),
+          type: selectedPrimaryTopic as 'AI' | 'IA_Mirato',
+          date: new Date().toISOString(),
+          score,
+          total: questions.length,
+          questions: questions,
         };
-        setQuizHistory(newHistory);
-        localStorage.setItem('quizResults', JSON.stringify(newHistory));
+        try {
+          const existingSessionsRaw = localStorage.getItem('aiQuizSessions');
+          const existingSessions: AIQuizSession[] = existingSessionsRaw ? JSON.parse(existingSessionsRaw) : [];
+          existingSessions.push(newSession);
+          localStorage.setItem('aiQuizSessions', JSON.stringify(existingSessions));
+        } catch (error) {
+          console.error("Failed to save AI quiz session to localStorage", error);
+        }
+
+      } else {
+        const topicPath = selectedPrimaryTopic === 'Misto' ? null : selectedQuizPath;
+        if (topicPath) {
+          const percentage = Math.round((score / questions.length) * 100);
+          const newHistory = {
+            ...quizHistory,
+            [topicPath]: { 
+              score, 
+              total: questions.length,
+              percentage,
+              date: new Date().toISOString()
+            },
+          };
+          setQuizHistory(newHistory);
+          localStorage.setItem('quizResults', JSON.stringify(newHistory));
+        }
       }
       setQuizFinished(true);
     }
