@@ -7,6 +7,7 @@ const URLS_TO_CACHE = [
   '/components/Quiz.tsx',
   '/components/Conversation.tsx',
   '/components/ApiKeyPrompt.tsx',
+  '/components/Campionato.tsx',
   '/components/Icons.tsx',
   '/data/allQuestions.ts',
   '/data/lessico.ts',
@@ -18,6 +19,8 @@ const URLS_TO_CACHE = [
   '/utils/audioUtils.ts',
   '/manifest.webmanifest',
   '/icon.svg',
+  '/icon-192.png',
+  '/icon-512.png',
   'https://cdn.tailwindcss.com'
 ];
 
