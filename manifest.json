@@ -1,0 +1,21 @@
+{
+  "name": "AlexIA",
+  "short_name": "AlexIA",
+  "description": "An application to practice Italian grammar (B1-B2) with quizzes and have real-time conversations with an AI tutor.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
