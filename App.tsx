@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import Quiz from './components/Quiz';
-import Conversation from './components/Conversation';
-import ApiKeyPrompt from './components/ApiKeyPrompt';
-import Campionato from './components/Campionato';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import type { AppMode } from './types';
 import { BookOpenIcon, MicrophoneIcon, TrophyIcon, TrashIcon } from './components/Icons';
+import ApiKeyPrompt from './components/ApiKeyPrompt';
+
+const Quiz = lazy(() => import('./components/Quiz'));
+const Conversation = lazy(() => import('./components/Conversation'));
+const Campionato = lazy(() => import('./components/Campionato'));
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('quiz');
@@ -12,7 +13,6 @@ const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
-    // Carica la chiave API dal localStorage all'avvio
     const storedApiKey = localStorage.getItem('userApiKey');
     if (storedApiKey) {
       setApiKey(storedApiKey);
@@ -50,7 +50,6 @@ const App: React.FC = () => {
         window.location.reload();
     }
   };
-
 
   if (!apiKey) {
     return <ApiKeyPrompt onApiKeySave={handleApiKeySave} />;
@@ -108,6 +107,14 @@ const App: React.FC = () => {
       </button>
     );
   };
+  
+  const LoadingFallback = () => (
+    <div className="max-w-2xl mx-auto py-8 text-center">
+        <div className="bg-white p-8 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold text-slate-800 mb-4">Caricamento...</h2>
+        </div>
+    </div>
+  )
 
   return (
     <div className="flex flex-col h-screen font-sans bg-slate-100">
@@ -153,7 +160,9 @@ const App: React.FC = () => {
 
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4">
+          <Suspense fallback={<LoadingFallback />}>
             {renderContent()}
+          </Suspense>
         </div>
       </main>
     </div>
