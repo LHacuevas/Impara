@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { TranscriptionEntry, QuizHistory } from "../types";
 
 export async function analyzeConversation(transcript: TranscriptionEntry[], apiKey: string): Promise<string> {
@@ -73,6 +73,99 @@ export async function getReplySuggestions(transcript: TranscriptionEntry[], apiK
     }
 }
 
+export async function correctTextStream(text: string, apiKey: string): Promise<AsyncGenerator<GenerateContentResponse>> {
+    if (!apiKey) {
+        throw new Error("Errore: Chiave API non fornita.");
+    }
+    const ai = new GoogleGenAI({ apiKey });
+    const model = 'gemini-2.5-flash';
+
+    const prompt = `Sei un esperto correttore di bozze per la lingua italiana. Correggi il seguente testo per renderlo grammaticalmente perfetto, naturale e stilisticamente appropriato. Apporta correzioni a grammatica, sintassi, scelta delle parole e punteggiatura.
+    Restituisci SOLO il testo corretto, senza alcuna spiegazione, commento o saluto.
+
+    Testo da correggere:
+    ---
+    ${text}
+    ---
+    `;
+
+    try {
+        const response = await ai.models.generateContentStream({
+            model: model,
+            contents: prompt,
+        });
+        return response;
+    } catch (error) {
+        console.error("Error correcting text:", error);
+        throw new Error("Si è verificato un errore durante la correzione. Controlla che la tua API Key sia corretta e riprova.");
+    }
+}
+
+export async function explainCorrections(originalText: string, correctedText: string, apiKey: string): Promise<string> {
+    if (!apiKey) {
+        return "Errore: Chiave API non fornita.";
+    }
+    const ai = new GoogleGenAI({ apiKey });
+    const model = 'gemini-2.5-flash';
+
+    const prompt = `Sei un'insegnante di italiano estremamente precisa e concisa. Analizza il testo originale e quello corretto e fornisci una spiegazione schematica delle modifiche.
+Segui ESATTAMENTE questo formato, senza aggiungere introduzioni, commenti, saluti o altre informazioni.
+
+**Spiegazione grammaticale:**
+
+«[parola/frase sbagliata]» → «[parola/frase corretta]»
+[Spiegazione molto breve della regola]
+Esempio: [frase di esempio con la correzione].
+
+(Ripeti la sezione sopra per ogni errore significativo)
+
+**Struttura corretta:**
+[Spiegazione molto breve sulla struttura generale della frase]
+Quindi: [La frase completa e corretta].
+
+---
+ESEMPIO DI OUTPUT PERFETTO:
+**Spiegazione grammaticale:**
+
+«Antes» → «prima»
+«Antes» è una parola spagnola. In italiano si usa «prima».
+Esempio: Questo passa prima del capitolo otto.
+
+«Dil» → «del»
+La preposizione articolata corretta è «del» («di» + «il»).
+Esempio: Ho bisogno del libro.
+
+**Struttura corretta:**
+In italiano, la forma più naturale è 'passa prima di qualcosa'.
+Quindi: Questo passa prima del capitolo otto?
+---
+
+**Testo Originale dello Studente:**
+---
+${originalText}
+---
+
+**Testo Corretto:**
+---
+${correctedText}
+---
+
+Ora, fornisci la tua spiegazione seguendo rigorosamente le regole e l'esempio forniti.
+`;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: model,
+            contents: prompt,
+        });
+        return response.text;
+    } catch (error) {
+        console.error("Error explaining corrections:", error);
+        return "Si è verificato un errore during la generazione della spiegazione. Riprova.";
+    }
+}
+
+
 export async function analyzeQuizHistory(history: QuizHistory, apiKey: string): Promise<string> {
     if (!apiKey) {
         return "Errore: Chiave API non fornita.";
@@ -111,6 +204,6 @@ ${historyData}
         return response.text;
     } catch (error) {
         console.error("Error analyzing quiz history:", error);
-        return "Si è verificato un errore durante l'analisi dei tuoi risultati. Controlla che la tua API Key sia corretta e riprova più tardi.";
+        return "Si è verificato un errore during l'analisi dei tuoi risultati. Controlla che la tua API Key sia corretta e riprova più tardi.";
     }
 }

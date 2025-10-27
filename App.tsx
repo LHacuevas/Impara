@@ -4,7 +4,7 @@ import Conversation from './components/Conversation';
 import ApiKeyPrompt from './components/ApiKeyPrompt';
 import Campionato from './components/Campionato';
 import type { AppMode } from './types';
-import { BookOpenIcon, MicrophoneIcon, TrophyIcon } from './components/Icons';
+import { BookOpenIcon, MicrophoneIcon, TrophyIcon, TrashIcon } from './components/Icons';
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<AppMode>('quiz');
@@ -41,6 +41,16 @@ const App: React.FC = () => {
     setApiKey(null);
     localStorage.removeItem('userApiKey');
   };
+
+  const handleResetData = () => {
+    if (window.confirm("Sei sicuro di voler cancellare tutti i tuoi progressi? Questa azione è irreversibile e ricaricherà la pagina.")) {
+        localStorage.removeItem('quizResults');
+        localStorage.removeItem('quizAnalysis');
+        localStorage.removeItem('aiQuizSessions');
+        window.location.reload();
+    }
+  };
+
 
   if (!apiKey) {
     return <ApiKeyPrompt onApiKeySave={handleApiKeySave} />;
@@ -125,6 +135,10 @@ const App: React.FC = () => {
                 <span className={`w-3 h-3 rounded-full transition-colors ${isOnline ? 'bg-green-500' : 'bg-slate-400'}`} title={isOnline ? 'Online' : 'Offline'}></span>
                 <button onClick={handleApiKeyClear} className="text-xs text-slate-500 hover:text-emerald-600 whitespace-nowrap">
                   Cambia Key
+                </button>
+                <button onClick={handleResetData} title="Cancella tutti i dati e ricomincia" className="text-xs text-slate-500 hover:text-red-600 whitespace-nowrap flex items-center gap-1">
+                  <TrashIcon className="h-4 w-4" /> 
+                  <span className='hidden sm:inline'>Reset</span>
                 </button>
               </div>
               <div className="hidden sm:flex items-center space-x-1">

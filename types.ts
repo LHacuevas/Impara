@@ -7,7 +7,7 @@ export interface Question {
 
 export type AppMode = 'quiz' | 'conversation' | 'campionato';
 
-export type ConversationMode = 'teacher' | 'normal';
+export type ConversationMode = 'teacher' | 'normal' | 'corrector';
 
 export interface TranscriptionEntry {
   speaker: 'user' | 'model';

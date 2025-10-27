@@ -2,8 +2,8 @@ import { GoogleGenAI, LiveServerMessage, Modality, Session } from '@google/genai
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { encode, decode, decodeAudioData } from '../utils/audioUtils';
 import type { TranscriptionEntry, ConversationMode } from '../types';
-import { MicrophoneIcon, StopCircleIcon, AcademicCapIcon, ChatBubbleLeftRightIcon, SparklesIcon } from './Icons';
-import { analyzeConversation, getReplySuggestions } from '../services/geminiService';
+import { MicrophoneIcon, StopCircleIcon, AcademicCapIcon, ChatBubbleLeftRightIcon, SparklesIcon, PencilSquareIcon, ClipboardIcon, ClipboardCheckIcon } from './Icons';
+import { analyzeConversation, getReplySuggestions, correctTextStream, explainCorrections } from '../services/geminiService';
 
 interface ConversationProps {
     apiKey: string;
@@ -18,6 +18,14 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [suggestedReplies, setSuggestedReplies] = useState<string[]>([]);
     const [isSuggesting, setIsSuggesting] = useState(false);
+    
+    // State per il correttore testuale
+    const [inputText, setInputText] = useState('');
+    const [correctedText, setCorrectedText] = useState<string | null>(null);
+    const [isCorrecting, setIsCorrecting] = useState(false);
+    const [explanation, setExplanation] = useState<string | null>(null);
+    const [isExplaining, setIsExplaining] = useState(false);
+    const [isCopied, setIsCopied] = useState(false);
 
 
     const sessionPromiseRef = useRef<Promise<Session> | null>(null);
@@ -51,7 +59,7 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
     const stopConversation = useCallback(() => cleanup(), [cleanup]);
 
     const startConversation = async (mode: ConversationMode) => {
-        if (isSessionActive) return;
+        if (isSessionActive || mode === 'corrector') return;
         
         resetConversation();
         setConversationMode(mode);
@@ -178,6 +186,49 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
         setSuggestedReplies(result);
         setIsSuggesting(false);
     }
+    
+    const handleCorrectText = async () => {
+        if (!inputText.trim()) return;
+        setIsCorrecting(true);
+        setCorrectedText(''); // Inizializza come stringa vuota per lo streaming
+        setExplanation(null);
+        setIsCopied(false);
+        try {
+            const stream = await correctTextStream(inputText, apiKey);
+            for await (const chunk of stream) {
+                setCorrectedText(prev => (prev ?? '') + chunk.text);
+            }
+        } catch (error) {
+            console.error(error);
+            const errorMessage = error instanceof Error ? error.message : "Si è verificato un errore.";
+            setCorrectedText(errorMessage);
+        } finally {
+            setIsCorrecting(false);
+        }
+    };
+    
+    const handleExplainCorrections = async () => {
+        if (!inputText.trim() || !correctedText) return;
+        setIsExplaining(true);
+        setExplanation(null);
+        try {
+            const result = await explainCorrections(inputText, correctedText, apiKey);
+            setExplanation(result);
+        } catch (error) {
+            console.error(error);
+            setExplanation("Si è verificato un errore durante la spiegazione.");
+        } finally {
+            setIsExplaining(false);
+        }
+    };
+
+    const handleCopy = () => {
+        if (correctedText) {
+            navigator.clipboard.writeText(correctedText);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        }
+    };
 
     const resetConversation = () => {
         setConversationMode(null);
@@ -186,6 +237,11 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
         setIsAnalyzing(false);
         setSuggestedReplies([]);
         setIsSuggesting(false);
+        setInputText('');
+        setCorrectedText(null);
+        setIsCorrecting(false);
+        setExplanation(null);
+        setIsExplaining(false);
         setStatusMessage('Scegli una modalità per iniziare.');
     };
     
@@ -196,7 +252,7 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
             <div className="flex flex-col justify-center items-center h-full p-4 text-center">
                  <h2 className="text-xl font-bold text-slate-700 mb-2">Scegli una modalità</h2>
                  <p className="text-slate-500 mb-8">Come vuoi praticare oggi?</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-md">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
                     <button onClick={() => startConversation('teacher')} className="p-6 bg-white rounded-xl shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition-all">
                         <AcademicCapIcon className="mx-auto h-12 w-12 text-emerald-600 mb-3" />
                         <h3 className="font-semibold text-slate-800">Modalità Professoressa</h3>
@@ -207,11 +263,74 @@ const Conversation: React.FC<ConversationProps> = ({ apiKey }) => {
                         <h3 className="font-semibold text-slate-800">Conversazione Libera</h3>
                         <p className="text-sm text-slate-500 mt-1">Parla liberamente come con un amico.</p>
                     </button>
+                    <button onClick={() => setConversationMode('corrector')} className="p-6 bg-white rounded-xl shadow-lg text-center hover:shadow-xl hover:-translate-y-1 transition-all">
+                        <PencilSquareIcon className="mx-auto h-12 w-12 text-purple-600 mb-3" />
+                        <h3 className="font-semibold text-slate-800">Correttore Testuale</h3>
+                        <p className="text-sm text-slate-500 mt-1">Scrivi un testo e ottieni la versione corretta.</p>
+                    </button>
                 </div>
             </div>
         )
     }
 
+    if (conversationMode === 'corrector') {
+        return (
+            <div className="max-w-3xl mx-auto p-4 flex flex-col h-full">
+                <h2 className="text-xl font-bold text-slate-700 mb-6">Correttore Testuale</h2>
+                <div className="bg-white p-6 rounded-xl shadow-lg flex-1 flex flex-col">
+                    <textarea
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        placeholder="Scrivi qui il testo da correggere..."
+                        className="w-full flex-1 p-3 border-2 border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        rows={6}
+                    />
+                    {isCorrecting && correctedText === '' && (
+                        <div className="mt-4 text-center text-slate-600">
+                           <p>Correzione in corso...</p>
+                           <div className="w-16 h-1 mt-2 mx-auto border-2 border-slate-200 border-t-purple-500 rounded-full animate-spin"></div>
+                        </div>
+                    )}
+                    {correctedText !== null && (
+                        <div className="mt-4">
+                            <div className="flex justify-between items-center mb-2">
+                                <h3 className="font-semibold text-slate-800">Testo Corretto:</h3>
+                                <button onClick={handleCopy} title="Copia testo" className="text-slate-500 hover:text-emerald-600 transition-colors">
+                                    {isCopied ? <ClipboardCheckIcon className="h-5 w-5 text-emerald-600" /> : <ClipboardIcon className="h-5 w-5" />}
+                                </button>
+                            </div>
+                            <div className="p-3 bg-emerald-50 text-emerald-900 rounded-lg whitespace-pre-wrap">{correctedText}</div>
+                        </div>
+                    )}
+                    {isExplaining && (
+                        <div className="mt-4 text-center text-slate-600">
+                            <p>Sto preparando la spiegazione...</p>
+                            <div className="w-16 h-1 mt-2 mx-auto border-2 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
+                        </div>
+                    )}
+                    {explanation && !isExplaining && (
+                         <div className="mt-4">
+                            <h3 className="font-semibold text-slate-800">Spiegazione delle Correzioni:</h3>
+                            <div className="p-4 mt-2 bg-slate-50 text-slate-800 rounded-lg whitespace-pre-wrap text-sm" dangerouslySetInnerHTML={{ __html: explanation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}></div>
+                        </div>
+                    )}
+                </div>
+                <div className="mt-4 flex flex-col gap-4">
+                    <button onClick={handleCorrectText} disabled={!inputText.trim() || isCorrecting} className="w-full px-6 py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-colors disabled:bg-purple-300 disabled:cursor-not-allowed">
+                        {isCorrecting ? 'Correzione in corso...' : 'Correggi Testo'}
+                    </button>
+                    {correctedText && !isCorrecting && (
+                         <button onClick={handleExplainCorrections} disabled={isExplaining || isCorrecting} className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg shadow-md hover:bg-emerald-700 transition-colors disabled:bg-emerald-300 disabled:cursor-not-allowed">
+                            <SparklesIcon className="h-5 w-5" />
+                            {isExplaining ? 'Sto Spiegando...' : 'Spiega Correzioni'}
+                        </button>
+                    )}
+                </div>
+            </div>
+        )
+    }
+
+    // Modalità Conversazione Audio
     return (
         <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8 flex flex-col h-full">
             <div className="bg-white p-4 rounded-xl shadow-lg flex-1 overflow-y-auto mb-4">

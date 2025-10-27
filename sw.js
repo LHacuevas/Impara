@@ -12,6 +12,7 @@ const URLS_TO_CACHE = [
   '/data/lessico.ts',
   '/data/modiDiDire.ts',
   '/data/verbi.ts',
+  '/data/libro.ts',
   '/services/geminiService.ts',
   '/types.ts',
   '/utils/audioUtils.ts',

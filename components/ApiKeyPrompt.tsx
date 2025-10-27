@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ApiKeyPromptProps {
   onApiKeySave: (key: string) => void;
@@ -6,6 +6,13 @@ interface ApiKeyPromptProps {
 
 const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onApiKeySave }) => {
   const [inputValue, setInputValue] = useState('');
+  const [hasExistingData, setHasExistingData] = useState(false);
+
+  useEffect(() => {
+      if (localStorage.getItem('quizResults') || localStorage.getItem('aiQuizSessions')) {
+          setHasExistingData(true);
+      }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -13,6 +20,8 @@ const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onApiKeySave }) => {
       onApiKeySave(inputValue.trim());
     }
   };
+
+  const buttonText = hasExistingData ? "Salva e Continua a Imparare" : "Salva e Inizia a Imparare";
 
   return (
     <div className="flex items-center justify-center h-screen bg-slate-100 p-4">
@@ -34,7 +43,7 @@ const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ onApiKeySave }) => {
             disabled={!inputValue.trim()}
             className="w-full bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-700 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
           >
-            Salva e Inizia a Imparare
+            {buttonText}
           </button>
         </form>
         
